@@ -1,0 +1,660 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NETCONTROL | Router Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #0b1220;
+            --sidebar: #101b30;
+            --panel: #17243a;
+            --card: #1c2b43;
+            --blue: #078acb;
+            --blue-hover: #087bb5;
+            --text: #e5edf8;
+            --muted: #8192ad;
+            --green: #20d68a;
+            --border: #263750;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 106px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--sidebar);
+            border-right: 1px solid #1d2a40;
+            padding: 16px 9px;
+        }
+
+        .logo {
+            color: #08a5e9;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+        }
+
+        .menu-title {
+            font-size: 7px;
+            color: #62728e;
+            letter-spacing: 1px;
+            margin: 0 0 12px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 9px 7px;
+            margin-bottom: 7px;
+            color: #94a5bf;
+            text-decoration: none;
+            font-size: 9px;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #203e63;
+            color: #20b6f5;
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            margin-left: 106px;
+            padding: 16px 23px;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .top-header h1 {
+            font-size: 21px;
+            margin: 0 0 5px;
+            color: #f1f5fc;
+        }
+
+        .top-header p {
+            font-size: 10px;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .connection-status {
+            background: #12352d;
+            color: var(--green);
+            border: 1px solid #185b43;
+            border-radius: 20px;
+            padding: 6px 11px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        /* SECTIONS */
+
+        .section {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 14px;
+            margin-bottom: 17px;
+            scroll-margin-top: 15px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 13px;
+        }
+
+        .section-header h2 {
+            font-size: 13px;
+            margin: 0;
+            color: #e7edf8;
+        }
+
+        .section-label {
+            color: #71839e;
+            font-size: 7px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ROUTER OVERVIEW */
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 9px;
+        }
+
+        .overview-card {
+            background: var(--card);
+            padding: 11px;
+            border-radius: 6px;
+            min-width: 0;
+        }
+
+        .overview-card span {
+            display: block;
+            font-size: 7px;
+            color: #8ea0bc;
+            margin-bottom: 7px;
+        }
+
+        .overview-card strong {
+            font-size: 10px;
+            color: #f0f5fc;
+            overflow-wrap: anywhere;
+        }
+
+        .overview-card .ready {
+            color: var(--green);
+        }
+
+        /* AVAILABLE COMMANDS */
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 9px;
+        }
+
+        .command-card {
+            background: var(--card);
+            border: 1px solid #2a3b56;
+            border-radius: 6px;
+            padding: 9px;
+            min-width: 0;
+        }
+
+        .command-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .command-top p {
+            font-size: 9px;
+            font-weight: bold;
+            margin: 0;
+            color: #dbe5f4;
+        }
+
+        .copy-button {
+            border: none;
+            background: #103b59;
+            color: #22b8f4;
+            padding: 5px 9px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 8px;
+        }
+
+        .copy-button:hover {
+            background: #155477;
+        }
+
+        .command-code {
+            display: block;
+            background: #0b1425;
+            padding: 9px;
+            border-radius: 4px;
+            color: #27baff;
+            font-family: Consolas, monospace;
+            font-size: 9px;
+            overflow-wrap: anywhere;
+        }
+
+        /* EXECUTE BUTTON */
+
+        .run-button {
+            width: 100%;
+            margin-top: 9px;
+            border: none;
+            padding: 11px;
+            border-radius: 5px;
+            background: var(--blue);
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .run-button:hover {
+            background: var(--blue-hover);
+        }
+
+        /* RESULTS */
+
+        .success {
+            background: #12352d;
+            color: #42d99a;
+            border: 1px solid #205b46;
+            padding: 11px;
+            border-radius: 5px;
+            font-size: 10px;
+            margin-bottom: 12px;
+        }
+
+        .error {
+            background: #351e2a;
+            color: #ff929f;
+            border: 1px solid #713343;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 10px;
+            margin-bottom: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .result {
+            background: #111d31;
+            border: 1px solid #293b57;
+            border-radius: 6px;
+            margin-bottom: 11px;
+            overflow: hidden;
+            scroll-margin-top: 15px;
+        }
+
+        .result h3 {
+            margin: 0;
+            padding: 10px;
+            background: #1c2b43;
+            color: #20baff;
+            font-family: Consolas, monospace;
+            font-size: 10px;
+        }
+
+        .result pre {
+            margin: 0;
+            padding: 12px;
+            color: #d0dbea;
+            font-family: Consolas, monospace;
+            font-size: 9px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            overflow-x: auto;
+        }
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 9px;
+            padding: 20px 0;
+        }
+
+        /* SCROLLBAR */
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #30415c;
+            border-radius: 10px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 700px) {
+            .overview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main {
+                padding: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 76px;
+                padding: 12px 5px;
+            }
+
+            .logo {
+                font-size: 9px;
+            }
+
+            .nav-link {
+                font-size: 8px;
+                padding: 8px 4px;
+            }
+
+            .main {
+                margin-left: 76px;
+                padding: 12px;
+            }
+
+            .top-header h1 {
+                font-size: 17px;
+            }
+
+            .connection-status {
+                font-size: 7px;
+                padding: 5px 7px;
+            }
+
+            .section {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            ◈ NETCONTROL
+        </div>
+
+        <p class="menu-title">MAIN MENU</p>
+
+        <a href="#dashboard" class="nav-link active">▣ Dashboard</a>
+        <a href="#commands" class="nav-link">⌘ Commands</a>
+        <a href="#results" class="nav-link">▤ Results</a>
+        <a href="#settings" class="nav-link">⚙ Settings</a>
+
+    </aside>
+
+
+    
+
+    <main class="main">
+
+        
+
+        <header class="top-header" id="dashboard">
+
+            <div>
+                <h1>Router Dashboard</h1>
+                <p>Network monitoring and device management</p>
+            </div>
+
+            <div class="connection-status">
+                ● Ready to Connect
+            </div>
+
+        </header>
+
+
+       
+
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Router Overview</h2>
+                <span class="section-label">DEVICE INFORMATION</span>
+            </div>
+
+            <div class="overview-grid">
+
+                <div class="overview-card">
+                    <span>IP ADDRESS</span>
+                    <strong>192.168.10.234</strong>
+                </div>
+
+                <div class="overview-card">
+                    <span>CONNECTION</span>
+                    <strong>Cisco IOS Telnet</strong>
+                </div>
+
+                <div class="overview-card">
+                    <span>PORT</span>
+                    <strong>32770</strong>
+                </div>
+
+                <div class="overview-card">
+                    <span>STATUS</span>
+                    <strong class="ready">● Ready</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        
+
+        <section class="section" id="commands">
+
+            <div class="section-header">
+                <h2>Available Commands</h2>
+                <span class="section-label">CISCO IOS</span>
+            </div>
+
+            <div class="commands-grid">
+
+                <div class="command-card">
+
+                    <div class="command-top">
+                        <p>Router Information</p>
+
+                        <button class="copy-button"
+                            onclick="copyCommand('show version')">
+                            Copy
+                        </button>
+                    </div>
+
+                    <code class="command-code">show version</code>
+
+                </div>
+
+
+                <div class="command-card">
+
+                    <div class="command-top">
+                        <p>Interface Status</p>
+
+                        <button class="copy-button"
+                            onclick="copyCommand('show ip interface brief')">
+                            Copy
+                        </button>
+                    </div>
+
+                    <code class="command-code">show ip interface brief</code>
+
+                </div>
+
+
+                <div class="command-card">
+
+                    <div class="command-top">
+                        <p>Active Configuration</p>
+
+                        <button class="copy-button"
+                            onclick="copyCommand('show running-config')">
+                            Copy
+                        </button>
+                    </div>
+
+                    <code class="command-code">show running-config</code>
+
+                </div>
+
+            </div>
+
+
+            <form action="/" method="POST">
+
+                <button type="submit" class="run-button">
+                    ▶ &nbsp; Execute All Commands
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- ERROR MESSAGE -->
+
+        {% if error %}
+
+        <section class="error">
+
+            <strong>Connection Error</strong>
+            <p>{{ error }}</p>
+
+        </section>
+
+        {% endif %}
+
+
+        
+
+        {% if results %}
+
+        <section class="section" id="results">
+
+            <div class="section-header">
+                <h2>Command Results</h2>
+                <span class="section-label">EXECUTION OUTPUT</span>
+            </div>
+
+            <div class="success">
+                ✓ Commands have been executed successfully.
+            </div>
+
+            {% for command, output in results.items() %}
+
+            <div class="result">
+
+                <h3>$ {{ command }}</h3>
+
+                <pre>{{ output }}</pre>
+
+            </div>
+
+            {% endfor %}
+
+        </section>
+
+        {% endif %}
+
+
+        
+
+        <section class="section" id="settings">
+
+            <div class="section-header">
+                <h2>Settings</h2>
+                <span class="section-label">CONNECTION DETAILS</span>
+            </div>
+
+            <div class="overview-grid">
+
+                <div class="overview-card">
+                    <span>ROUTER IP</span>
+                    <strong>192.168.10.234</strong>
+                </div>
+
+                <div class="overview-card">
+                    <span>PROTOCOL</span>
+                    <strong>Telnet</strong>
+                </div>
+
+                <div class="overview-card">
+                    <span>PORT NUMBER</span>
+                    <strong>32770</strong>
+                </div>
+
+                <div class="overview-card">
+                    <span>DEVICE TYPE</span>
+                    <strong>Cisco IOS</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        
+
+        <footer>
+            NETCONTROL | Network Monitoring and Device Management
+        </footer>
+
+    </main>
+
+
+    
+    <script>
+
+        function copyCommand(command) {
+
+            navigator.clipboard.writeText(command)
+                .then(function() {
+                    alert("Command copied successfully!");
+                })
+                .catch(function() {
+                    alert("Unable to copy command.");
+                });
+
+        }
+
+
+        
+
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        navLinks.forEach(link => {
+
+            link.addEventListener("click", function() {
+
+                navLinks.forEach(item => {
+                    item.classList.remove("active");
+                });
+
+                this.classList.add("active");
+
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>
